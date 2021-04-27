@@ -14,7 +14,7 @@ export function Home() {
 	const [tasks, setTasks] = useState([]);
 
 	return (
-		<div className="text-center mt-5 todos-list">
+		<div className="text-center mt-5 d-flex flex-column justify-content-center align-items-center">
 			<h1>Todos</h1>
 			<div className="main shadow p-3 mb-5">
 				<input
