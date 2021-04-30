@@ -1,17 +1,86 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export function Home() {
-	//1) Crear un componente de estado (useState) para guardar el estado inicial de las tareas.
-	//2) Designar el valor del componente de estado en el input.
-	//3) Crear un evento (onChange) para almacenar el nuevo estado de las tareas.
-	//4) Crear un segundo componente de estado (useState) para poder manipular el nuevo estado de las tareas que se generan.
-	//5) Crear un segundo evento (onKeyPress) para guardar las propiedades (id, label) del objeto que representa ese nuevo estado de las tareas.
-	//6) Crear una función (.map) para recorrer el arreglo y devolverlo dentro de la lista requerida.
-	//7) Crear un tercer evento (onClick) para eliminar una tarea.
-	//8) Crear una función (.filter) para comparar el id seleccionado con todos los demás Id's de las tareas y así poder excluir la tarea que se quiere eliminar.
-
-	const [newTask, setNewTask] = useState("");
 	const [tasks, setTasks] = useState([]);
+	const [newTask, setNewTask] = useState("");
+	const [error, setError] = useState(false);
+
+	const URI = "https://assets.breatheco.de/apis/fake/todos";
+
+	const getTask = async () => {
+		try {
+			let response = await fetch(URI + "/user/barbierincones");
+			if (response.ok) {
+				const data = await response.json();
+				console.log(data);
+				setTasks(data);
+			} else {
+				console.log("unsuccessful request");
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	const addTask = async event => {
+		try {
+			if (event.key === "Enter") {
+				if (event.target.value.trim() != "") {
+					let response = await fetch(URI + "/user/barbierincones", {
+						method: "PUT",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify([
+							...tasks,
+							{ label: newTask, done: false }
+						])
+					});
+					if (response.ok) {
+						await getTask();
+						setNewTask("");
+					} else {
+						console.log(response.statusText);
+						console.log(
+							"Task could not be added, please try again"
+						);
+					}
+				} else {
+					setError(true);
+					return;
+				}
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	const deleteTask = async id => {
+		try {
+			let filterTasks = tasks.filter((newTask, index) => {
+				return id != index;
+			});
+			let response = await fetch(URI + "/user/barbierincones", {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify([...filterTasks])
+			});
+			if (response.ok) {
+				await getTask();
+			} else {
+				console.log(response.statusText);
+				console.log("The task could not be deleted, please try again");
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	useEffect(() => {
+		getTask();
+	}, []);
 
 	return (
 		<div className="text-center mt-5 d-flex flex-column justify-content-center align-items-center">
@@ -21,36 +90,21 @@ export function Home() {
 					className="color-change"
 					placeholder="Add your tasks here:"
 					value={newTask}
-					onChange={e => setNewTask(e.target.value)}
-					onKeyPress={e => {
-						if (e.key == "Enter") {
-							setTasks([
-								...tasks,
-								{
-									id: Math.random()
-										.toString(16)
-										.substring(2),
-									label: newTask
-								}
-							]);
-							setNewTask("");
-						}
-					}}></input>
+					onChange={e => {
+						setNewTask(e.target.value);
+						setError(false);
+					}}
+					onKeyPress={addTask}
+				/>
 				<ul>
-					{tasks.map(task => (
-						<li key={task.id} className="hidden-icon">
-							{task.label}
-							<span
-								onClick={e => {
-									let filterTasks = tasks.filter(
-										t => t.id != task.id
-									);
-									setTasks(filterTasks);
-								}}>
-								✖
-							</span>
-						</li>
-					))}
+					{tasks.map((newTask, index) => {
+						return (
+							<li key={index} className="hidden-icon">
+								{newTask.label}
+								<span onClick={() => deleteTask(index)}>✖</span>
+							</li>
+						);
+					})}
 				</ul>
 				<div>
 					<span className="footer-text">
