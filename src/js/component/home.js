@@ -1,15 +1,6 @@
 import React, { useState } from "react";
 
 export function Home() {
-	//1) Crear un componente de estado (useState) para guardar el estado inicial de las tareas.
-	//2) Designar el valor del componente de estado en el input.
-	//3) Crear un evento (onChange) para almacenar el nuevo estado de las tareas.
-	//4) Crear un segundo componente de estado (useState) para poder manipular el nuevo estado de las tareas que se generan.
-	//5) Crear un segundo evento (onKeyPress) para guardar las propiedades (id, label) del objeto que representa ese nuevo estado de las tareas.
-	//6) Crear una función (.map) para recorrer el arreglo y devolverlo dentro de la lista requerida.
-	//7) Crear un tercer evento (onClick) para eliminar una tarea.
-	//8) Crear una función (.filter) para comparar el id seleccionado con todos los demás Id's de las tareas y así poder excluir la tarea que se quiere eliminar.
-
 	const [newTask, setNewTask] = useState("");
 	const [tasks, setTasks] = useState([]);
 
